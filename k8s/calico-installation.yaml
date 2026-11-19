@@ -1,0 +1,16 @@
+# Calico, installed through the Tigera operator (scripts/node/install-calico.sh).
+# __POD_CIDR__ is filled in from config.env and must equal podSubnet in kubeadm-config.yaml.
+#
+# VXLAN encapsulation works on plain EC2 without disabling the source/destination check and
+# needs only udp 4789 between nodes (see docs/security-groups.md).
+apiVersion: operator.tigera.io/v1
+kind: Installation
+metadata:
+  name: default
+spec:
+  calicoNetwork:
+    ipPools:
+      - cidr: __POD_CIDR__
+        encapsulation: VXLAN
+        natOutgoing: Enabled
+        nodeSelector: all()

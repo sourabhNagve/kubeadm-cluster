@@ -1,0 +1,58 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "StartSessionOnlyOnThisClusterNodes",
+      "Effect": "Allow",
+      "Action": "ssm:StartSession",
+      "Resource": "arn:aws:ec2:*:ACCOUNT_ID:instance/*",
+      "Condition": {
+        "StringEquals": { "ssm:resourceTag/project": "k8s-lab" }
+      }
+    },
+    {
+      "Sid": "AllowShellAndApiPortForwardDocuments",
+      "Effect": "Allow",
+      "Action": "ssm:StartSession",
+      "Resource": [
+        "arn:aws:ssm:*:*:document/SSM-SessionManagerRunShell",
+        "arn:aws:ssm:*:*:document/AWS-StartPortForwardingSession"
+      ]
+    },
+    {
+      "Sid": "ManageOwnSessionsOnly",
+      "Effect": "Allow",
+      "Action": ["ssm:TerminateSession", "ssm:ResumeSession"],
+      "Resource": "arn:aws:ssm:*:*:session/${aws:username}-*"
+    },
+    {
+      "Sid": "RunCommandOnThisClusterNodes",
+      "Effect": "Allow",
+      "Action": "ssm:SendCommand",
+      "Resource": "arn:aws:ec2:*:ACCOUNT_ID:instance/*",
+      "Condition": {
+        "StringEquals": { "ssm:resourceTag/project": "k8s-lab" }
+      }
+    },
+    {
+      "Sid": "RunCommandDocument",
+      "Effect": "Allow",
+      "Action": "ssm:SendCommand",
+      "Resource": "arn:aws:ssm:*:*:document/AWS-RunShellScript"
+    },
+    {
+      "Sid": "ReadCommandResultsAndNodeStatus",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetCommandInvocation",
+        "ssm:ListCommandInvocations",
+        "ssm:DescribeInstanceInformation",
+        "ssm:DescribeSessions",
+        "ssm:GetConnectionStatus",
+        "ssm:DescribeInstanceProperties",
+        "ec2:DescribeInstances"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

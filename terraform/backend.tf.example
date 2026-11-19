@@ -1,0 +1,13 @@
+# Remote state for anything beyond a personal lab. Copy to backend.tf, fill in the bucket, run
+# `terraform init -migrate-state`. Create the bucket first (versioning ON, default encryption ON,
+# public access blocked). Native S3 locking needs Terraform >= 1.10; on older versions add a
+# DynamoDB table with `dynamodb_table = "<table>"` and drop use_lockfile.
+terraform {
+  backend "s3" {
+    bucket       = "my-org-terraform-state"
+    key          = "k8s-kubeadm-aws/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
+}

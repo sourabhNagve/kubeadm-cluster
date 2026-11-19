@@ -1,0 +1,28 @@
+# Local configuration and state (state holds resource IDs; kubeconfig holds cluster-admin credentials)
+config.env
+.state/
+*.kubeconfig
+kubeconfig
+
+# Terraform: never commit state (it can contain sensitive values) or local variable files.
+# DO commit terraform/.terraform.lock.hcl so everyone gets the same provider versions.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+terraform.tfvars
+*.auto.tfvars
+backend.tf
+
+# Editor / OS noise
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Never commit secrets
+*.pem
+*.key
+enc.yaml

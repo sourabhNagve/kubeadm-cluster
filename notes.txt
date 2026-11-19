@@ -1,0 +1,2 @@
+without the session plugin, the aws cli wont be able to start or end sessions to the instances.
+it works without opening the inbound ports or the bastion hosts.

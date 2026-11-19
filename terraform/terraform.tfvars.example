@@ -1,0 +1,21 @@
+# Copy to terraform.tfvars (git-ignored) and adjust. Every value below is the default,
+# so the file is optional; it exists to show what you can change.
+#   cp terraform.tfvars.example terraform.tfvars
+
+aws_region = "us-east-1"
+az_suffix  = "a"
+cluster    = "k8s-lab"
+
+vpc_cidr            = "10.20.0.0/16"
+public_subnet_cidr  = "10.20.0.0/24"
+private_subnet_cidr = "10.20.10.0/24"
+cp_ip               = "10.20.10.10" # inside private_subnet_cidr, not one of the first 4 addresses
+
+cp_instance_type     = "t3.medium"
+worker_instance_type = "t3.medium"
+root_volume_gb       = 30
+
+k8s_minor = "v1.36"
+
+# ami_id     = "ami-0123456789abcdef0" # pin an AMI instead of resolving the latest Ubuntu 24.04
+# kms_key_id = "arn:aws:kms:us-east-1:111122223333:key/..." # customer-managed key for EBS

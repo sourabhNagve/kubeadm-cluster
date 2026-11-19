@@ -1,0 +1,56 @@
+# Smoke test workload (scripts/08-smoke-test.sh): 2 nginx replicas spread across the workers,
+# exposed on a NodePort. Images come from the public ECR mirror to avoid Docker Hub rate limits
+# on the shared NAT gateway address.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smoke-test
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: smoke-test
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: web
+      containers:
+        - name: nginx
+          image: public.ecr.aws/nginx/nginx:stable
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: smoke-test
+spec:
+  type: NodePort
+  selector:
+    app: web
+  ports:
+    - port: 80
+      targetPort: 80

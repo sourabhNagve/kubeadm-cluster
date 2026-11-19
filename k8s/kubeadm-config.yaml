@@ -1,0 +1,46 @@
+# kubeadm configuration for the single control plane.
+# Placeholders (__X__) are filled in by scripts/05-init-control-plane.sh from config.env.
+#
+# Notes:
+#   - controlPlaneEndpoint is the fixed private IP of the control plane. In production use a DNS
+#     name that points at an internal NLB, decided BEFORE the first `kubeadm init` (see
+#     docs/production-notes.md).
+#   - 127.0.0.1 and localhost are API certificate SANs so kubectl works through an SSM
+#     port-forward from your laptop (docs/ssm-guide.md).
+#   - Secrets are encrypted at rest with the key generated on the node by scripts/node/cp-init.sh.
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: __CP_IP__
+  bindPort: 6443
+nodeRegistration:
+  criSocket: unix:///run/containerd/containerd.sock
+---
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: ClusterConfiguration
+clusterName: __CLUSTER__
+controlPlaneEndpoint: "__CP_IP__:6443"
+networking:
+  podSubnet: __POD_CIDR__
+  serviceSubnet: __SERVICE_CIDR__
+apiServer:
+  certSANs:
+    - __CP_IP__
+    - 127.0.0.1
+    - localhost
+  extraArgs:
+    - name: encryption-provider-config
+      value: /etc/kubernetes/enc/enc.yaml
+  extraVolumes:
+    - name: enc
+      hostPath: /etc/kubernetes/enc
+      mountPath: /etc/kubernetes/enc
+      readOnly: true
+      pathType: DirectoryOrCreate
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+cgroupDriver: systemd
+# Kubelet serving certificates are issued by the cluster CA through CSRs (approved in
+# scripts/node/post-join.sh) instead of self-signed certificates.
+serverTLSBootstrap: true
